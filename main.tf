@@ -63,7 +63,7 @@ resource "citrixadc_systemfile" "le_upload_key" {
 }
 
 resource "citrixadc_systemfile" "le_upload_root" {
-  filename = var.adc-letsencrypt-certificate.issuer_name
+  filename = var.adc-letsencrypt-install.issuer_name
   filelocation = var.adc-letsencrypt-install.upload_cert_filelocation
   filecontent = lookup(acme_certificate.le_certificate,"issuer_pem")
 
