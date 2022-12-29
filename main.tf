@@ -3,9 +3,9 @@
 #####
 
 resource "tls_private_key" "le_private_key" {
-  algorithm   = var.adc-letsencrypt-cert.private_key_algorithm
-  ecdsa_curve = var.adc-letsencrypt-cert.private_key_ecdsa_curve
-  rsa_bits    = var.adc-letsencrypt-cert.private_key_rsa_bits
+  algorithm   = var.adc-letsencrypt-certificate.private_key_algorithm
+  ecdsa_curve = var.adc-letsencrypt-certificate.private_key_ecdsa_curve
+  rsa_bits    = var.adc-letsencrypt-certificate.private_key_rsa_bits
 }
 
 #####
@@ -14,7 +14,7 @@ resource "tls_private_key" "le_private_key" {
 
 resource "acme_registration" "le_registration" {
   account_key_pem = tls_private_key.le_private_key.private_key_pem
-  email_address   = var.adc-letsencrypt-cert.registration_email_address
+  email_address   = var.adc-letsencrypt-certificate.registration_email_address
 
   depends_on = [
     tls_private_key.le_private_key
@@ -27,7 +27,7 @@ resource "acme_registration" "le_registration" {
 
 resource "acme_certificate" "le_certificate" {
   account_key_pem           = acme_registration.le_registration.account_key_pem
-  common_name               = var.adc-letsencrypt-cert.common_name
+  common_name               = var.adc-letsencrypt-certificate.common_name
   subject_alternative_names = [var.adc-letsencrypt-cert-san]
 
   http_challenge {
@@ -63,7 +63,7 @@ resource "citrixadc_systemfile" "le_upload_key" {
 }
 
 resource "citrixadc_systemfile" "le_upload_root" {
-  filename = var.adc-letsencrypt-cert.issuer_name
+  filename = var.adc-letsencrypt-certificate.issuer_name
   filelocation = var.adc-letsencrypt-install.upload_cert_filelocation
   filecontent = lookup(acme_certificate.le_certificate,"issuer_pem")
 

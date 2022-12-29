@@ -6,7 +6,7 @@ variable adc-base {}
 #####
 # Variables for configuring the certificate
 #####
-variable adc-letsencrypt-cert {}
+variable adc-letsencrypt-certificate {}
 
 #####
 # Variable for certificate installation on ADC
