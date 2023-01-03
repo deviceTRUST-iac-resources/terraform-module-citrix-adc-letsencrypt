@@ -117,3 +117,18 @@ resource "citrixadc_nsconfig_save" "le_save" {
         citrixadc_sslcertkey.le_implement_rootca
     ]
 }
+
+#####
+# Wait for config save to commence properly, before allowing the subsequent module to run.
+#####
+
+
+resource "time_sleep" "le_wait" {
+
+  create_duration = "5s"
+
+  depends_on = [
+    citrixadc_nsconfig_save.le_save
+  ]
+
+}
