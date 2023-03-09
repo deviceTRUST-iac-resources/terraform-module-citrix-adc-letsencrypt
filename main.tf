@@ -93,7 +93,7 @@ depends_on = [
 #####
 
 resource "citrixadc_sslcertkey" "le_implement_certkeypair" {
-  certkey = var.adc-letsencrypt-install.certkey_name
+  certkey = "democloud"
   cert = "/nsconfig/ssl/democloud_certificate.cer"
   key = "/nsconfig/ssl/democloud_privatekey.cer"
   expirymonitor = "DISABLED"
