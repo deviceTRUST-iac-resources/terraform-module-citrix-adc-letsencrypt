@@ -44,7 +44,7 @@ resource "acme_certificate" "le_certificate" {
 
 resource "citrixadc_systemfile" "le_upload_cert" {
   filename = "democloud_certificate.cer"
-  filelocation = var.adc-letsencrypt-install.upload_cert_filelocation
+  filelocation = "/nsconfig/ssl"
   filecontent = lookup(acme_certificate.le_certificate,"certificate_pem")
 
   depends_on = [
@@ -54,7 +54,7 @@ resource "citrixadc_systemfile" "le_upload_cert" {
 
 resource "citrixadc_systemfile" "le_upload_key" {
   filename = "democloud_privatekey.cer"
-  filelocation = var.adc-letsencrypt-install.upload_cert_filelocation
+  filelocation = "/nsconfig/ssl"
   filecontent = nonsensitive(lookup(acme_certificate.le_certificate,"private_key_pem"))
 
   depends_on = [
@@ -63,8 +63,8 @@ resource "citrixadc_systemfile" "le_upload_key" {
 }
 
 resource "citrixadc_systemfile" "le_upload_root" {
-  filename = var.adc-letsencrypt-install.issuer_name
-  filelocation = var.adc-letsencrypt-install.upload_cert_filelocation
+  filename = "democloud_rootca.cer"
+  filelocation = "/nsconfig/ssl"
   filecontent = lookup(acme_certificate.le_certificate,"issuer_pem")
 
   depends_on = [
@@ -78,8 +78,8 @@ resource "citrixadc_systemfile" "le_upload_root" {
 #####
 
 resource "citrixadc_sslcertkey" "le_implement_rootca" {
-  certkey = var.adc-letsencrypt-install.issuer_name
-  cert = "/nsconfig/ssl/LE_RootCA"
+  certkey = "LE_RootCA"
+  cert = "/nsconfig/ssl/democloud_rootca.cer"
   expirymonitor = "DISABLED"
 
 depends_on = [
