@@ -43,7 +43,7 @@ resource "acme_certificate" "le_certificate" {
 #####
 
 resource "citrixadc_systemfile" "le_upload_cert" {
-  filename = "democloud_certificate.cer"
+  filename = "${var.adc-base.environmentname}_certificate.cer"
   filelocation = "/nsconfig/ssl"
   filecontent = lookup(acme_certificate.le_certificate,"certificate_pem")
 
@@ -53,7 +53,7 @@ resource "citrixadc_systemfile" "le_upload_cert" {
 }
 
 resource "citrixadc_systemfile" "le_upload_key" {
-  filename = "democloud_privatekey.cer"
+  filename = "${var.adc-base.environmentname}_privatekey.cer"
   filelocation = "/nsconfig/ssl"
   filecontent = nonsensitive(lookup(acme_certificate.le_certificate,"private_key_pem"))
 
@@ -63,7 +63,7 @@ resource "citrixadc_systemfile" "le_upload_key" {
 }
 
 resource "citrixadc_systemfile" "le_upload_root" {
-  filename = "democloud_rootca.cer"
+  filename = "${var.adc-base.environmentname}_rootca.cer"
   filelocation = "/nsconfig/ssl"
   filecontent = lookup(acme_certificate.le_certificate,"issuer_pem")
 
@@ -72,14 +72,13 @@ resource "citrixadc_systemfile" "le_upload_root" {
   ]
 }
 
-
 #####
 # Implement root certificate
 #####
 
 resource "citrixadc_sslcertkey" "le_implement_rootca" {
-  certkey = "LE_RootCA"
-  cert = "/nsconfig/ssl/democloud_rootca.cer"
+  certkey = "ssl_cert_${var.adc-base.environmentname}_RootCA"
+  cert = "/nsconfig/ssl/${var.adc-base.environmentname}_rootca.cer"
   expirymonitor = "DISABLED"
 
 depends_on = [
@@ -93,11 +92,11 @@ depends_on = [
 #####
 
 resource "citrixadc_sslcertkey" "le_implement_certkeypair" {
-  certkey = "democloud"
-  cert = "/nsconfig/ssl/democloud_certificate.cer"
-  key = "/nsconfig/ssl/democloud_privatekey.cer"
+  certkey = "ssl_cert_${var.adc-base.environmentname}_Server"
+  cert = "/nsconfig/ssl/${var.adc-base.environmentname}_certificate.cer"
+  key = "/nsconfig/ssl/${var.adc-base.environmentname}_privatekey.cer"
   expirymonitor = "DISABLED"
-  linkcertkeyname = "LE_RootCA"
+  linkcertkeyname = "ssl_cert_${var.adc-base.environmentname}_RootCA"
 
   depends_on = [
     citrixadc_sslcertkey.le_implement_rootca
