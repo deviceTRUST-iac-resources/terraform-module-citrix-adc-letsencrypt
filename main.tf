@@ -1,7 +1,13 @@
 #####
+# Defince locals
+#####
+locals {
+  filelocation = "/nsconfig/ssl"
+}
+
+#####
 # Create Private Key
 #####
-
 resource "tls_private_key" "le_private_key" {
   algorithm   = var.adc-letsencrypt-certificate.private_key_algorithm
   ecdsa_curve = var.adc-letsencrypt-certificate.private_key_ecdsa_curve
@@ -11,7 +17,6 @@ resource "tls_private_key" "le_private_key" {
 #####
 # Register with ACME
 #####
-
 resource "acme_registration" "le_registration" {
   account_key_pem = tls_private_key.le_private_key.private_key_pem
   email_address   = var.adc-letsencrypt-certificate.registration_email_address
@@ -24,7 +29,6 @@ resource "acme_registration" "le_registration" {
 #####
 # Create Certificate
 #####
-
 resource "acme_certificate" "le_certificate" {
   account_key_pem           = acme_registration.le_registration.account_key_pem
   common_name               = var.adc-letsencrypt-certificate.common_name
@@ -39,12 +43,11 @@ resource "acme_certificate" "le_certificate" {
 }
 
 #####
-# Upload files to /ssl at ADC
+# Upload cert files to /nsconfig/ssl on ADC
 #####
-
 resource "citrixadc_systemfile" "le_upload_cert" {
   filename = "${var.adc-base.environmentname}_certificate.cer"
-  filelocation = "/nsconfig/ssl"
+  filelocation = local.filelocation
   filecontent = lookup(acme_certificate.le_certificate,"certificate_pem")
 
   depends_on = [
@@ -54,7 +57,7 @@ resource "citrixadc_systemfile" "le_upload_cert" {
 
 resource "citrixadc_systemfile" "le_upload_key" {
   filename = "${var.adc-base.environmentname}_privatekey.cer"
-  filelocation = "/nsconfig/ssl"
+  filelocation = local.filelocation
   filecontent = nonsensitive(lookup(acme_certificate.le_certificate,"private_key_pem"))
 
   depends_on = [
@@ -64,7 +67,7 @@ resource "citrixadc_systemfile" "le_upload_key" {
 
 resource "citrixadc_systemfile" "le_upload_root" {
   filename = "${var.adc-base.environmentname}_rootca.cer"
-  filelocation = "/nsconfig/ssl"
+  filelocation = local.filelocation
   filecontent = lookup(acme_certificate.le_certificate,"issuer_pem")
 
   depends_on = [
@@ -75,7 +78,6 @@ resource "citrixadc_systemfile" "le_upload_root" {
 #####
 # Implement root certificate
 #####
-
 resource "citrixadc_sslcertkey" "le_implement_rootca" {
   certkey = "ssl_cert_${var.adc-base.environmentname}_RootCA"
   cert = "/nsconfig/ssl/${var.adc-base.environmentname}_rootca.cer"
@@ -90,7 +92,6 @@ depends_on = [
 #####
 # Implement server certificate
 #####
-
 resource "citrixadc_sslcertkey" "le_implement_certkeypair" {
   certkey = "ssl_cert_${var.adc-base.environmentname}_Server"
   cert = "/nsconfig/ssl/${var.adc-base.environmentname}_certificate.cer"
@@ -106,7 +107,6 @@ resource "citrixadc_sslcertkey" "le_implement_certkeypair" {
 #####
 # Save config
 #####
-
 resource "citrixadc_nsconfig_save" "le_save" {  
     all        = true
     timestamp  = timestamp()

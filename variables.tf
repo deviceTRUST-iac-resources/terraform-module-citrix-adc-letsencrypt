@@ -1,5 +1,5 @@
 #####
-# Variables for administrative connection to the ADC
+# Variable for administrative connection to the ADC
 #####
 variable adc-base {}
 
@@ -7,9 +7,4 @@ variable adc-base {}
 # Variables for configuring the certificate
 #####
 variable adc-letsencrypt-certificate {}
-
-#####
-# Variable for certificate installation on ADC
-#####
-variable adc-letsencrypt-install {}
 variable adc-letsencrypt-certificate-san{}
