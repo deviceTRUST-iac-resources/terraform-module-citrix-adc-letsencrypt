@@ -1,13 +1,13 @@
 terraform {
-  required_version = ">= 1.0.0"
+  required_version = ">= 1.3.5"
   required_providers {
     citrixadc = {
       source = "citrix/citrixadc"
-      version = ">= 1.31.0"
+      version = ">= 1.32.0"
     }
     acme = {
       source = "vancluever/acme"
-      version = ">= 2.10.0"
+      version = ">= 2.13.1"
     }
   }
 }
